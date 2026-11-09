@@ -25,7 +25,7 @@
 
 **직접 받기**: [릴리스 페이지](https://github.com/wisdom5565/modo-releases/releases/latest)에서 받습니다.
 
-- Mac: Apple 칩(M1~)은 `MODO-x.y.z-arm64.dmg`, Intel은 `MODO-x.y.z.dmg`. dmg를 열어 MODO를 응용 프로그램으로 옮긴 뒤, 서명 경고가 뜨면 터미널에서 `xattr -dr com.apple.quarantine /Applications/MODO.app`을 한 번 실행합니다. (또는 시스템 설정 → 개인정보 보호 및 보안 → 맨 아래 '열도록 허용')
+- Mac: Apple 칩(M1~)은 `MODO-x.y.z-arm64.dmg`, Intel은 `MODO-x.y.z.dmg`. dmg를 열어 MODO를 응용 프로그램으로 옮긴 뒤, '확인되지 않은 개발자'나 '손상되었기 때문에 열 수 없습니다' 경고가 뜨면 터미널에서 `xattr -dr com.apple.quarantine /Applications/MODO.app`을 한 번 실행합니다. (또는 시스템 설정 → 개인정보 보호 및 보안 → 맨 아래 '열도록 허용')
 - Windows: `MODO-Setup-x.y.z.exe`를 실행하고, "Windows의 PC 보호" 창이 뜨면 **추가 정보 → 실행**.
 
 ## 업데이트
