@@ -20,7 +20,7 @@ if [ "$(uname -m)" = "arm64" ]; then dmg="MODO-$ver-arm64.dmg"; else dmg="MODO-$
 
 tmp=$(mktemp -d)
 mnt="$tmp/mnt"
-cleanup() { hdiutil detach -quiet "$mnt" 2>/dev/null || true; rm -rf "$tmp"; }
+cleanup() { hdiutil detach -quiet "$mnt" 2>/dev/null || true; rm -rf "$tmp"; [ -n "${new:-}" ] && rm -rf "$new"; }
 trap cleanup EXIT
 
 echo "MODO $ver 받는 중… ($dmg)"
@@ -44,12 +44,15 @@ if pgrep -xq MODO; then
   if pgrep -xq MODO; then echo "MODO를 끄지 못했어요. 앱을 끈 뒤 다시 실행해 주세요." >&2; exit 1; fi
 fi
 
-# 새 앱을 옆에 다 복사한 뒤에 바꾼다. 복사가 실패해도 쓰던 앱은 남는다
-new="/Applications/.MODO-new-$$.app"
+# 새 앱을 옆에 다 복사한 뒤 옛 앱을 비켜 두고 바꾼다. 실패하면 옛 앱으로 되돌린다
+# lib/selfupdate.js swapScript와 같은 순서를 지킨다 (이 파일은 curl | bash로 혼자 돌아서 글로 맞춘다)
+app=/Applications/MODO.app
+new="/Applications/.MODO-new-$$.app"; old="/Applications/.MODO-old-$$.app"
 rm -rf "$new"
-ditto "$mnt/MODO.app" "$new" || { rm -rf "$new"; echo "앱을 복사하지 못했어요. 쓰던 MODO는 그대로 있어요." >&2; exit 1; }
-xattr -dr com.apple.quarantine "$new" 2>/dev/null || true
-rm -rf /Applications/MODO.app
-mv "$new" /Applications/MODO.app
+if ! ditto "$mnt/MODO.app" "$new"; then rm -rf "$new"; echo "앱을 복사하지 못했어요. 쓰던 MODO는 그대로 있어요." >&2; exit 1; fi
+if [ -e "$app" ] && ! mv "$app" "$old"; then rm -rf "$new"; echo "쓰던 MODO를 옮기지 못했어요. 그대로 있어요." >&2; exit 1; fi
+if ! mv "$new" "$app"; then [ -e "$old" ] && mv "$old" "$app"; rm -rf "$new"; echo "앱을 바꾸지 못해 쓰던 MODO로 되돌렸어요." >&2; exit 1; fi
+rm -rf "$old" || true # 새 앱은 이미 들어갔다. 옛 앱을 못 지워도 설치는 끝낸다
+xattr -dr com.apple.quarantine "$app" 2>/dev/null || true
 
 echo "MODO $ver 를 설치했어요. 응용 프로그램에서 MODO를 열어 주세요."
